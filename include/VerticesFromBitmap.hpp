@@ -121,7 +121,7 @@ class VerticesFromBitmap
     Color unoccupiedColor = Color::White;
     Color occupiedColor = Color::Black;
     Color scannedColor  = Color::Red;
-    Color outOfBoundsColor = Color::Green;
+    Color outOfBoundsColor = unoccupiedColor;
     float coLinearThreshold = 0.5f;//1.0f/sqrt(2.0f) - 1e-6;
     float extremeCLT = 0.99f;
     float occupancyThreshold = 0.1f;
@@ -230,7 +230,7 @@ class VerticesFromBitmap
                 generateSingleIsland({x,y}, _bitmap, tempIsland);
                 if(tempIsland.vertexPositions.size() > 2)
                 {
-                    //tempIsland.vertexPositions.push_back(tempIsland.vertexPositions[0]);
+                    tempIsland.vertexPositions.push_back(tempIsland.vertexPositions[0]);
                     _islands.push_back(tempIsland);
                     //return;
                 }
