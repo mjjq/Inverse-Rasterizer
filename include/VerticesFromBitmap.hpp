@@ -118,13 +118,13 @@ struct Island
 
 class VerticesFromBitmap
 {
-    const Color unoccupiedColor = Color::White;
-    const Color occupiedColor = Color::Black;
-    const Color scannedColor  = Color::Red;
-    const Color outOfBoundsColor = Color::Green;
-    const float coLinearThreshold = 0.5f;//1.0f/sqrt(2.0f) - 1e-6;
-    const float occupancyThreshold = 0.1f;
-    const float maxDistance = 50.0f;
+    Color unoccupiedColor = Color::White;
+    Color occupiedColor = Color::Black;
+    Color scannedColor  = Color::Red;
+    Color outOfBoundsColor = Color::Green;
+    float coLinearThreshold = 0.5f;//1.0f/sqrt(2.0f) - 1e-6;
+    float occupancyThreshold = 0.1f;
+    float maxDistance = 50.0f;
 
     Image bitmap;
 
@@ -235,6 +235,7 @@ class VerticesFromBitmap
                 {
                     //tempIsland.vertexPositions.push_back(tempIsland.vertexPositions[0]);
                     islands.push_back(tempIsland);
+                    //return;
                 }
             }
     }
@@ -344,8 +345,7 @@ class VerticesFromBitmap
         return false;
     }
 
-public:
-    VerticesFromBitmap(Image const & _bitmap) : bitmap{_bitmap}
+    void applyContrast(Image & _bitmap)
     {
         for(unsigned int y=0; y<bitmap.getSize().y; ++y)
             for(unsigned int x=0; x<bitmap.getSize().x; ++x)
@@ -357,10 +357,46 @@ public:
             }
     }
 
+public:
+    VerticesFromBitmap(Image const & _bitmap) :
+        bitmap{_bitmap}
+    {}
+
+    VerticesFromBitmap(Image const & _bitmap, float avgSpacing) :
+        bitmap{_bitmap}, maxDistance{avgSpacing} {}
+
+    ~VerticesFromBitmap() {}
+
     std::vector<Island > generateIslands()
     {
-        generateIslands(bitmap);
+        if(islands.size() == 0)
+        {
+            applyContrast(bitmap);
+            generateIslands(bitmap);
+
+        }
         return islands;
+    }
+
+    float getAverageSpacing() { return maxDistance; }
+
+    void setAverageSpacing(float spacing)
+    {
+        maxDistance = spacing;
+    }
+
+    float getColinearThreshold() { return coLinearThreshold; }
+
+    void setColinearThreshold(float CLT)
+    {
+        coLinearThreshold = CLT;
+    }
+
+    float getPixelThreshold() { return occupancyThreshold; }
+
+    void setPixelThreshold(float pixelThreshold)
+    {
+        occupancyThreshold = pixelThreshold;
     }
 };
 
