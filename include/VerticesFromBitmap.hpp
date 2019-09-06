@@ -88,6 +88,11 @@ struct Vec2u
     {
         return x < o.x || (x == o.x && y < o.y);
     }
+
+    void print() const
+    {
+        std::cout << "(" << x << ", " << y << ")\n";
+    }
 };
 
 struct Vec2i
@@ -117,8 +122,8 @@ class VerticesFromBitmap
     const Color occupiedColor = Color::Black;
     const Color scannedColor  = Color::Red;
     const Color outOfBoundsColor = Color::Green;
-    const float coLinearThreshold = 0.8f;
-    const float occupancyThreshold = 0.5f;
+    const float coLinearThreshold = 0.807106f;
+    const float occupancyThreshold = 0.1f;
 
     Image bitmap;
 
@@ -228,7 +233,6 @@ class VerticesFromBitmap
                 if(tempIsland.vertexPositions.size() > 2)
                 {
                     islands.push_back(tempIsland);
-                    return;
                 }
             }
     }
@@ -247,9 +251,6 @@ class VerticesFromBitmap
             Vec2 secondEdge = Vec2::norm(_island.vertexPositions[thirdIndex] -
                                          _island.vertexPositions[secondIndex]);
 
-            std::cout << firstEdge.x << ", " << firstEdge.y << "first\n";
-            std::cout << secondEdge.x << ", " << secondEdge.y << "second\n";
-            std::cout << Vec2::dot(firstEdge, secondEdge) << "colinearity\n\n";
             if(Vec2::dot(firstEdge, secondEdge) > coLinearThreshold)
                 _island.vertexPositions.erase(_island.vertexPositions.begin() + secondIndex);
         }
@@ -263,12 +264,17 @@ class VerticesFromBitmap
 
         if(currPixel == unoccupiedColor ||
            currPixel == scannedColor)
+        {
+            //std::cout << "pixel scanned or unoccupied\n";
             return;
+        }
         if(!isPixelOnABorder(startingPixel, _bitmap))
         {
             _bitmap.setPixel(startingPixel.x, startingPixel.y, scannedColor);
             return;
         }
+
+
 
         _bitmap.setPixel(startingPixel.x, startingPixel.y, scannedColor);
 
@@ -281,39 +287,40 @@ class VerticesFromBitmap
 
         Vec2u nextPixel = getBestNearestNeighbour(startingPixel, _bitmap);
 
+
         if(nextPixel != startingPixel)
             generateSingleIsland(nextPixel, _bitmap, _returnIsland);
 
     }
 
-    bool beyondOccThreshold(Color const & color,
-                            Color const & occColor,
-                            float _occThreshold,
-                            char channel = 'r')
+    bool aboveThreshold(Color const & color,
+                        Color const & occColor,
+                        float _occThreshold,
+                        char channel = 'g')
     {
         switch(channel)
         {
             case 'r':
             {
-                if((float)color.r >= (float)occColor.r * _occThreshold)
+                if((float)color.r > ((float)occColor.r * _occThreshold))
                     return true;
                 break;
             }
             case 'g':
             {
-                if((float)color.g >= (float)occColor.g * _occThreshold)
+                if((float)color.g > (float)occColor.g * _occThreshold)
                     return true;
                 break;
             }
             case 'b':
             {
-                if((float)color.b >= (float)occColor.b * _occThreshold)
+                if((float)color.b > (float)occColor.b * _occThreshold)
                     return true;
                 break;
             }
             case 'a':
             {
-                if((float)color.a >= (float)occColor.a * _occThreshold)
+                if((float)color.a > (float)occColor.a * _occThreshold)
                     return true;
                 break;
             }
@@ -325,7 +332,17 @@ class VerticesFromBitmap
     }
 
 public:
-    VerticesFromBitmap(Image const & _bitmap) : bitmap{_bitmap} {}
+    VerticesFromBitmap(Image const & _bitmap) : bitmap{_bitmap}
+    {
+        for(unsigned int y=0; y<bitmap.getSize().y; ++y)
+            for(unsigned int x=0; x<bitmap.getSize().x; ++x)
+            {
+                if(aboveThreshold(bitmap.getPixel(x,y), unoccupiedColor, occupancyThreshold, 'r'))
+                    bitmap.setPixel(x,y, unoccupiedColor);
+                else
+                    bitmap.setPixel(x,y, occupiedColor);
+            }
+    }
 
     std::vector<Island > generateIslands()
     {
