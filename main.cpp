@@ -14,11 +14,11 @@ void drawIslands(sf::RenderWindow & window,
     for(auto & island : islands)
     {
         verts.clear();
-        for(int i=0; i<island.vertexPositions.size(); ++i)
+        for(unsigned int i=0; i<island.vertexPositions.size(); ++i)
         {
             Vec2 position = island.vertexPositions[i];
-            verts.push_back({{position.x+0.5f, position.y+0.5f}, sf::Color::Green});
-            circ.setPosition({position.x+0.5f, position.y+0.5f});
+            verts.push_back({{(float)(position.x+0.5), (float)(position.y+0.5)}, sf::Color::Green});
+            circ.setPosition({(float)(position.x+0.5), (float)(position.y+0.5)});
             window.draw(circ);
         }
 
@@ -58,7 +58,7 @@ int main()
 
 
     std::cout << islands.size() << "numIslands\n";
-    for(int i=0; i<islands.size(); ++i)
+    for(unsigned int i=0; i<islands.size(); ++i)
     {
         std::cout << "island " << i << " has " << islands[i].vertexPositions.size() << " vertices\n";
     }

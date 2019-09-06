@@ -124,7 +124,7 @@ class VerticesFromBitmap
     Color outOfBoundsColor = unoccupiedColor;
     float coLinearThreshold = 0.5f;//1.0f/sqrt(2.0f) - 1e-6;
     float extremeCLT = 0.99f;
-    float occupancyThreshold = 0.1f;
+    float occupancyThreshold = 0.01f;
     float maxDistance = 50.0f;
 
     Color getPixel(Vec2u const & coordinate,
