@@ -122,8 +122,9 @@ class VerticesFromBitmap
     const Color occupiedColor = Color::Black;
     const Color scannedColor  = Color::Red;
     const Color outOfBoundsColor = Color::Green;
-    const float coLinearThreshold = 0.807106f;
+    const float coLinearThreshold = 0.5f;//1.0f/sqrt(2.0f) - 1e-6;
     const float occupancyThreshold = 0.1f;
+    const float maxDistance = 50.0f;
 
     Image bitmap;
 
@@ -232,6 +233,7 @@ class VerticesFromBitmap
                 generateSingleIsland({x,y}, _bitmap, tempIsland);
                 if(tempIsland.vertexPositions.size() > 2)
                 {
+                    //tempIsland.vertexPositions.push_back(tempIsland.vertexPositions[0]);
                     islands.push_back(tempIsland);
                 }
             }
@@ -240,18 +242,27 @@ class VerticesFromBitmap
     void removeCoLinear(Island & _island,
                         float const & coLinearThreshold)
     {
-        if(_island.vertexPositions.size() > 2)
+        if(_island.vertexPositions.size() > 3)
         {
+
             int firstIndex = _island.vertexPositions.size() - 3;
             int secondIndex = _island.vertexPositions.size() - 2;
             int thirdIndex = _island.vertexPositions.size() - 1;
 
             Vec2 firstEdge = Vec2::norm(_island.vertexPositions[secondIndex] -
                                         _island.vertexPositions[firstIndex]);
+
             Vec2 secondEdge = Vec2::norm(_island.vertexPositions[thirdIndex] -
                                          _island.vertexPositions[secondIndex]);
 
-            if(Vec2::dot(firstEdge, secondEdge) > coLinearThreshold)
+            float distance = Vec2::length(_island.vertexPositions[thirdIndex] -
+                                         _island.vertexPositions[firstIndex]);
+
+            float dP1 = Vec2::dot(firstEdge, secondEdge);
+
+            float average = dP1;
+
+            if(average > coLinearThreshold && distance < maxDistance)
                 _island.vertexPositions.erase(_island.vertexPositions.begin() + secondIndex);
         }
     }
@@ -289,7 +300,9 @@ class VerticesFromBitmap
 
 
         if(nextPixel != startingPixel)
+        {
             generateSingleIsland(nextPixel, _bitmap, _returnIsland);
+        }
 
     }
 
