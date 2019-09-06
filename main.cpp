@@ -3,10 +3,11 @@
 #include "./include/VerticesFromBitmap.hpp"
 
 void drawIslands(sf::RenderWindow & window,
-                 std::vector<Island > const & islands)
+                 std::vector<Island > const & islands,
+                 float circleRadius = 1.0f)
 {
-    sf::CircleShape circ(3.1f);
-    circ.setOrigin({3.1f, 3.1f});
+    sf::CircleShape circ(circleRadius);
+    circ.setOrigin({circleRadius, circleRadius});
 
 
     std::vector<sf::Vertex > verts;
@@ -50,9 +51,9 @@ int main()
 
 
 
-    VerticesFromBitmap bmp(image);
+    VerticesFromBitmap bmp;
 
-    std::vector<Island > islands = bmp.generateIslands();
+    std::vector<Island > islands = bmp.generateIslands(image);
 
 
 
@@ -66,6 +67,7 @@ int main()
 
     bool drawImage = false;
     float averageSpacing = 30.0f;
+    float circleRadius = 2.0f;
     resetView(window, image);
 
     while(window.isOpen())
@@ -84,31 +86,44 @@ int main()
                     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
                     {
                         averageSpacing *= 2.0f;
+                        bmp.setAverageSpacing(averageSpacing);
                         image.loadFromFile("./test.png");
-                        bmp = VerticesFromBitmap(image, averageSpacing);
+                        texture.loadFromFile("./test.png");
+                        sprite.setTexture(texture);
                         resetView(window, image);
                     }
                     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
                     {
                         averageSpacing /= 2.0f;
+                        bmp.setAverageSpacing(averageSpacing);
                         image.loadFromFile("./test.png");
-                        bmp = VerticesFromBitmap(image, averageSpacing);
+                        texture.loadFromFile("./test.png");
+                        sprite.setTexture(texture);
                         resetView(window, image);
                     }
                     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::R))
                     {
                         image.loadFromFile("./test.png");
-                        bmp = VerticesFromBitmap(image, averageSpacing);
+                        texture.loadFromFile("./test.png");
+                        sprite.setTexture(texture);
                         resetView(window, image);
                     }
                     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
                     {
                         drawImage = !drawImage;
                     }
+                    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::PageUp))
+                    {
+                        circleRadius *= 2.0f;
+                    }
+                    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::PageDown))
+                    {
+                        circleRadius /= 2.0f;
+                    }
 
 
                     islands.clear();
-                    islands = bmp.generateIslands();
+                    islands = bmp.generateIslands(image);
                     std::cout << islands.size() << " numOfIslands\n";
                 }
                 default:
@@ -121,7 +136,7 @@ int main()
 
         if(drawImage)
             window.draw(sprite);
-        drawIslands(window, islands);
+        drawIslands(window, islands, circleRadius);
 
         sf::sleep(sf::milliseconds(16));
 

@@ -123,12 +123,9 @@ class VerticesFromBitmap
     Color scannedColor  = Color::Red;
     Color outOfBoundsColor = Color::Green;
     float coLinearThreshold = 0.5f;//1.0f/sqrt(2.0f) - 1e-6;
+    float extremeCLT = 0.99f;
     float occupancyThreshold = 0.1f;
     float maxDistance = 50.0f;
-
-    Image bitmap;
-
-    std::vector<Island > islands;
 
     Color getPixel(Vec2u const & coordinate,
                    Image const & _bitmap)
@@ -224,7 +221,7 @@ class VerticesFromBitmap
         return coordinate;
     }
 
-    void generateIslands(Image & _bitmap)
+    void generateIslands(Image & _bitmap, std::vector<Island > & _islands)
     {
         for(unsigned int y=0; y<_bitmap.getSize().y; ++y)
             for(unsigned int x=0; x<_bitmap.getSize().x; ++x)
@@ -234,7 +231,7 @@ class VerticesFromBitmap
                 if(tempIsland.vertexPositions.size() > 2)
                 {
                     //tempIsland.vertexPositions.push_back(tempIsland.vertexPositions[0]);
-                    islands.push_back(tempIsland);
+                    _islands.push_back(tempIsland);
                     //return;
                 }
             }
@@ -263,7 +260,8 @@ class VerticesFromBitmap
 
             float average = dP1;
 
-            if(average > coLinearThreshold && distance < maxDistance)
+            if((average > coLinearThreshold && distance < maxDistance) ||
+               average > extremeCLT)
                 _island.vertexPositions.erase(_island.vertexPositions.begin() + secondIndex);
         }
     }
@@ -347,35 +345,35 @@ class VerticesFromBitmap
 
     void applyContrast(Image & _bitmap)
     {
-        for(unsigned int y=0; y<bitmap.getSize().y; ++y)
-            for(unsigned int x=0; x<bitmap.getSize().x; ++x)
+        for(unsigned int y=0; y<_bitmap.getSize().y; ++y)
+            for(unsigned int x=0; x<_bitmap.getSize().x; ++x)
             {
-                if(aboveThreshold(bitmap.getPixel(x,y), unoccupiedColor, occupancyThreshold, 'r'))
-                    bitmap.setPixel(x,y, unoccupiedColor);
+                if(aboveThreshold(_bitmap.getPixel(x,y), unoccupiedColor, occupancyThreshold, 'r'))
+                    _bitmap.setPixel(x,y, unoccupiedColor);
                 else
-                    bitmap.setPixel(x,y, occupiedColor);
+                    _bitmap.setPixel(x,y, occupiedColor);
             }
     }
 
 public:
-    VerticesFromBitmap(Image const & _bitmap) :
-        bitmap{_bitmap}
-    {}
+    VerticesFromBitmap() {}
 
-    VerticesFromBitmap(Image const & _bitmap, float avgSpacing) :
-        bitmap{_bitmap}, maxDistance{avgSpacing} {}
+    VerticesFromBitmap(float avgSpacing) :
+    maxDistance{avgSpacing} {}
 
     ~VerticesFromBitmap() {}
 
-    std::vector<Island > generateIslands()
+    std::vector<Island > generateIslands(Image bitmap)
     {
-        if(islands.size() == 0)
+        std::vector<Island > returnArr;
+
+        if(returnArr.size() == 0)
         {
             applyContrast(bitmap);
-            generateIslands(bitmap);
+            generateIslands(bitmap, returnArr);
 
         }
-        return islands;
+        return returnArr;
     }
 
     float getAverageSpacing() { return maxDistance; }
@@ -390,6 +388,13 @@ public:
     void setColinearThreshold(float CLT)
     {
         coLinearThreshold = CLT;
+    }
+
+    float getExtremeColinearThreshold() { return coLinearThreshold; }
+
+    void setExtremeColinearThreshold(float CLT)
+    {
+        extremeCLT = CLT;
     }
 
     float getPixelThreshold() { return occupancyThreshold; }
