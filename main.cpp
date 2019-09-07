@@ -42,16 +42,17 @@ int main()
     sf::VideoMode mode(800, 800);
     window.create(mode, "test");
 
+
+    VerticesFromBitmap bmp;
     sf::Sprite sprite;
     sf::Image image;
     image.loadFromFile("./test.png");
     sf::Texture texture;
-    texture.loadFromFile("./test.png");
+    bmp.applyContrast(image);
+    texture.loadFromImage(image);
     sprite.setTexture(texture);
 
 
-
-    VerticesFromBitmap bmp;
 
     std::vector<Island > islands = bmp.generateIslands(image);
 
@@ -119,6 +120,14 @@ int main()
                     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::PageDown))
                     {
                         circleRadius /= 2.0f;
+                    }
+                    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::K))
+                    {
+                        bmp.setColinearThreshold(bmp.getColinearThreshold() - 0.05f);
+                    }
+                    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::L))
+                    {
+                        bmp.setColinearThreshold(bmp.getColinearThreshold() + 0.05f);
                     }
 
 

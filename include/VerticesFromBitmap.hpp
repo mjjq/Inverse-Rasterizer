@@ -124,7 +124,7 @@ class VerticesFromBitmap
     Color outOfBoundsColor = unoccupiedColor;
     float coLinearThreshold = 0.5f;//1.0f/sqrt(2.0f) - 1e-6;
     float extremeCLT = 0.99f;
-    float occupancyThreshold = 0.01f;
+    float occupancyThreshold = 0.7f;
     float maxDistance = 50.0f;
 
     Color getPixel(Vec2u const & coordinate,
@@ -195,10 +195,10 @@ class VerticesFromBitmap
         {
             if(neighbours[{x,0}] == occupiedColor)
             {
-                bool xOccupied = neighbours[{x,1}] == occupiedColor &&
+                bool xOccupied = neighbours[{x,1}] != unoccupiedColor &&
                                  neighbours[{x,-1}] == unoccupiedColor;
                 bool x2Occupied = neighbours[{x,1}] == unoccupiedColor &&
-                                 neighbours[{x,-1}] == occupiedColor;
+                                 neighbours[{x,-1}] != unoccupiedColor;
                 if(xOccupied || x2Occupied)
                     return {coordinate.x + x, coordinate.y};
             }
@@ -209,10 +209,10 @@ class VerticesFromBitmap
         {
             if(neighbours[{0,y}] == occupiedColor)
             {
-                bool yOccupied = neighbours[{1,y}] == occupiedColor &&
+                bool yOccupied = neighbours[{1,y}] != unoccupiedColor &&
                                  neighbours[{-1,y}] == unoccupiedColor;
                 bool y2Occupied = neighbours[{1,y}] == unoccupiedColor &&
-                                 neighbours[{-1,y}] == occupiedColor;
+                                 neighbours[{-1,y}] != unoccupiedColor;
                 if(yOccupied || y2Occupied)
                     return {coordinate.x, coordinate.y + y};
             }
@@ -260,9 +260,20 @@ class VerticesFromBitmap
 
             float average = dP1;
 
-            if((average > coLinearThreshold && distance < maxDistance) ||
-               average > extremeCLT)
+            if((average > coLinearThreshold && distance < maxDistance))// ||
+               //average > extremeCLT)
                 _island.vertexPositions.erase(_island.vertexPositions.begin() + secondIndex);
+            else
+            {
+                int zerothIndex = _island.vertexPositions.size() - 4;
+
+                Vec2 zerothEdge = Vec2::norm(_island.vertexPositions[firstIndex] -
+                                             _island.vertexPositions[zerothIndex]);
+                float dP2 = Vec2::dot(zerothEdge, firstEdge);
+
+                if(dP2 > extremeCLT)
+                    _island.vertexPositions.erase(_island.vertexPositions.begin() + firstIndex);
+            }
         }
     }
 
@@ -293,7 +304,7 @@ class VerticesFromBitmap
 
         _returnIsland.vertexPositions.push_back({floatCoordX, floatCoordY});
 
-        removeCoLinear(_returnIsland, coLinearThreshold);
+        //removeCoLinear(_returnIsland, coLinearThreshold);
 
         Vec2u nextPixel = getBestNearestNeighbour(startingPixel, _bitmap);
 
@@ -343,6 +354,9 @@ class VerticesFromBitmap
         return false;
     }
 
+
+public:
+
     void applyContrast(Image & _bitmap)
     {
         for(unsigned int y=0; y<_bitmap.getSize().y; ++y)
@@ -355,7 +369,6 @@ class VerticesFromBitmap
             }
     }
 
-public:
     VerticesFromBitmap() {}
 
     VerticesFromBitmap(float avgSpacing) :
