@@ -122,7 +122,7 @@ class VerticesFromBitmap
     Color occupiedColor = Color::Black;
     Color scannedColor  = Color::Red;
     Color outOfBoundsColor = unoccupiedColor;
-    float coLinearThreshold = 0.5f;//1.0f/sqrt(2.0f) - 1e-6;
+    float coLinearThreshold = 0.7f;//1.0f/sqrt(2.0f) - 1e-6;
     float extremeCLT = 0.99f;
     float occupancyThreshold = 0.7f;
     float maxDistance = 50.0f;
@@ -304,7 +304,7 @@ class VerticesFromBitmap
 
         _returnIsland.vertexPositions.push_back({floatCoordX, floatCoordY});
 
-        //removeCoLinear(_returnIsland, coLinearThreshold);
+        removeCoLinear(_returnIsland, coLinearThreshold);
 
         Vec2u nextPixel = getBestNearestNeighbour(startingPixel, _bitmap);
 
