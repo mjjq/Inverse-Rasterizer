@@ -1,5 +1,7 @@
 # PolygonFromSprite
 
+![Example](https://github.com/mjjq/PolygonFromSprite/blob/master/images/example.jpg)
+
 ## What does this library do?
 
 This is a header only C++ library which creates polygons (arrays of vertices) from input PNG sprites.
