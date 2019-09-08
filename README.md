@@ -39,9 +39,9 @@ Double vertex rendered size: ``` PgUp ```
 
 Halve vertex rendered size: ``` PgDn ```
 
-Increase co-linear theshold: ``` L ```
+Increase co-linear threshold: ``` L ```
 
-Decrease co-linear theshold: ``` K ```
+Decrease co-linear threshold: ``` K ```
 
 
 
