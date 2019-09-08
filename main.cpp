@@ -2,6 +2,8 @@
 #include <SFML/Graphics.hpp>
 #include "./include/VerticesFromBitmap.hpp"
 
+using namespace vfb;
+
 void drawIslands(sf::RenderWindow & window,
                  std::vector<Island > const & islands,
                  float circleRadius = 1.0f)
