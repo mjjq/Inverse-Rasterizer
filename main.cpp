@@ -36,6 +36,21 @@ void resetView(sf::RenderWindow & window,
     window.setView(view);
 }
 
+void reloadImage(sf::Image & image,
+                 sf::Sprite & background,
+                 VerticesFromBitmap & bmp,
+                 sf::RenderWindow & window,
+                 sf::Texture & texture,
+                 bool applyContrast = false)
+{
+    image.loadFromFile("./test.png");
+    if(applyContrast)
+        bmp.applyContrast(image);
+    texture.loadFromImage(image);
+    background.setTexture(texture);
+    resetView(window, image);
+}
+
 int main()
 {
     sf::RenderWindow window;
@@ -69,6 +84,7 @@ int main()
     bool drawImage = false;
     float averageSpacing = 30.0f;
     float circleRadius = 2.0f;
+    bool applyContrast = false;
     resetView(window, image);
 
     while(window.isOpen())
@@ -88,26 +104,19 @@ int main()
                     {
                         averageSpacing *= 2.0f;
                         bmp.setAverageSpacing(averageSpacing);
-                        image.loadFromFile("./test.png");
-                        texture.loadFromFile("./test.png");
-                        sprite.setTexture(texture);
-                        resetView(window, image);
+                        reloadImage(image, sprite, bmp, window, texture, applyContrast);
+                        std::cout << averageSpacing << " avgSpacing\n";
                     }
                     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
                     {
                         averageSpacing /= 2.0f;
                         bmp.setAverageSpacing(averageSpacing);
-                        image.loadFromFile("./test.png");
-                        texture.loadFromFile("./test.png");
-                        sprite.setTexture(texture);
-                        resetView(window, image);
+                        reloadImage(image, sprite, bmp, window, texture, applyContrast);
+                        std::cout << averageSpacing << " avgSpacing\n";
                     }
                     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::R))
                     {
-                        image.loadFromFile("./test.png");
-                        texture.loadFromFile("./test.png");
-                        sprite.setTexture(texture);
-                        resetView(window, image);
+                        reloadImage(image, sprite, bmp, window, texture, applyContrast);
                     }
                     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
                     {
@@ -128,6 +137,11 @@ int main()
                     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::L))
                     {
                         bmp.setColinearThreshold(bmp.getColinearThreshold() + 0.05f);
+                    }
+                    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+                    {
+                        applyContrast = !applyContrast;
+                        reloadImage(image, sprite, bmp, window, texture, applyContrast);
                     }
 
 
